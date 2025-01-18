@@ -1,4 +1,4 @@
-import requests
+import requests # type: ignore
 
 def fetch_jobs(location=None, remote_only=True):
     # API Endpoint
