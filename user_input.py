@@ -3,12 +3,12 @@ import os
 import re
 
 # 🔹 Enable test mode (Set to True to auto-fill answers for testing)
-test_mode = True
+test_mode = False
 
 def test_input(prompt, default):
     """Returns a default value if test_mode is enabled, otherwise asks for input."""
     if test_mode:
-        print(f"{prompt} {default}")  # Simulate user input for visibility
+        print(f"{prompt} [AUTO-FILLED] {default}")  # Debug print
         return default
     return input(prompt).strip()
 
@@ -35,7 +35,7 @@ def optional_input(prompt, default="Not provided"):
 def collect_user_info():
     """Collects personal and career details, then saves them in separate JSON files."""
     
-    print("\n🚀 Personal Information (Stored in `user_data.json`)")
+    print("\n🚀 Starting User Input Collection...")
 
     user_data = {
         "first_name": test_input("First Name:", "John"),
@@ -59,28 +59,49 @@ def collect_user_info():
         "experience_years": optional_input("Years of Experience:", "3"),
         "desired_salary": optional_input("Desired Salary Range (e.g., '$80K - $100K' or 'Negotiable'):", "$80K - $100K"),
         "job_type": optional_input("Job Type (Remote, Hybrid, Onsite):", "Remote"),
-        "industries": optional_input("Preferred Industries (e.g., 'Tech, Finance, Healthcare'):", "Tech, AI, Finance")
+        "industries": optional_input("Preferred Industries (e.g., 'Tech, Finance, Healthcare'):", "Tech, AI, Finance"),
+        "work_experience": []
     }
 
-    # 🔹 Save Personal Data (`user_data.json`)
-    if os.path.exists("user_data.json"):
-        if os.path.exists("user_data_backup.json"):
-            os.remove("user_data_backup.json")  # Delete old backup first
-        os.rename("user_data.json", "user_data_backup.json")
+    # 🔹 Fix infinite loop issue
+    if test_mode:
+        # Add only ONE job experience in test mode
+        user_profile["work_experience"].append({
+            "title": "Software Engineer",
+            "company": "Google",
+            "years": "2",
+            "description": "Developed scalable applications."
+        })
+    else:
+        print("\n📜 Work Experience - Enter Past Jobs (Type 'done' to finish)")
+        while True:
+            job_title = test_input("Job Title:", "Software Engineer")
+            if job_title.lower() == "done":
+                break
+            company = test_input("Company:", "Google")
+            years = optional_input("Years at Company:", "2")
+            description = optional_input("Brief Job Description:", "Developed scalable applications.")
+
+            user_profile["work_experience"].append({
+                "title": job_title,
+                "company": company,
+                "years": years,
+                "description": description
+            })
+
+    # 🔹 Save Data
+    print("\n💾 Saving user data...")
 
     with open("user_data.json", "w") as file:
         json.dump(user_data, file, indent=4)
 
-    # 🔹 Save Career Data (`user_profile.json`)
-    if os.path.exists("user_profile.json"):
-        if os.path.exists("user_profile_backup.json"):
-            os.remove("user_profile_backup.json")  # Delete old backup first
-        os.rename("user_profile.json", "user_profile_backup.json")
-
     with open("user_profile.json", "w") as file:
         json.dump(user_profile, file, indent=4)
 
-    print("\n✅ User information saved! Ready for job scraping & automated applications.")
+    print("\n✅ User information saved successfully!")
 
 if __name__ == "__main__":
+    print("\n🔹 Running user input script...")
     collect_user_info()
+    print("\n🚀 User data collection complete. Now generating resume...")
+    os.system("python resume_generator.py")

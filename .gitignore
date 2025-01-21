@@ -1,7 +1,8 @@
 # 🚀 Ignore all generated resumes
 resume.pdf
 resume.docx
-
+resume_backup.pdf
+resume_backup.docx
 # 🚀 Ignore user data (Sensitive Information)
 user_data.json
 user_profile.json

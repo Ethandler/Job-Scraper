@@ -1,0 +1,25 @@
+cover_letter_template = """
+{applicant_name}
+{applicant_email} | {applicant_phone}
+{applicant_location}
+{date}
+
+{hiring_manager_name}
+{company_name}
+{company_address}
+
+Dear {hiring_manager_name},
+
+I am excited to apply for the {job_title} position at {company_name}. With my background in {field_of_expertise} and experience in {related_skill_1}, {related_skill_2}, and {related_skill_3}, I believe I am well-suited to contribute effectively to your team.
+
+In my previous role at {previous_company}, I {mention_impactful_achievement}. Additionally, I have developed expertise in {key_skill_or_tech} that aligns with your job requirements.
+
+I am particularly drawn to this opportunity because of {mention_company_value_or_project} and I am eager to bring my experience in {relevant_experience} to your organization.
+
+I welcome the opportunity to discuss how my skills align with the needs of your team. Please feel free to contact me at {applicant_phone} or {applicant_email} to schedule an interview.
+
+Thank you for your time and consideration.
+
+Best regards,  
+{applicant_name}
+"""

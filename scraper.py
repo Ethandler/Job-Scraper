@@ -1,34 +1,22 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
-import json
 
-# 🔹 Load User Preferences from `user_profile.json`
-with open("user_profile.json", "r") as f:
-    user_data = json.load(f)
-
-preferred_titles = [title.lower().strip() for title in user_data["desired_job_titles"]]
-preferred_skills = [skill.lower().strip() for skill in user_data["skills"]]
-
-# 🔹 Chromium Path (Ungoogled Chromium)
+# 🔹 Chromium Path
 chromium_path = r"C:\Users\Ethan\AppData\Local\Chromium\Application\chrome.exe"
 
-# 🔹 Set Up Chrome Options (Now with SwiftShader Enabled)
+# 🔹 Set Up Chrome Options
 options = Options()
-options.binary_location = chromium_path  # Use Chromium
+options.binary_location = chromium_path
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--disable-gpu")
+options.add_argument("--disable-software-rasterizer")
 
-# 🛠️ **Enable Software Rendering (SwiftShader)**
-options.add_argument("--disable-gpu")  # Disable GPU acceleration
-options.add_argument("--disable-software-rasterizer")  # Force software rendering
-
-# 🔹 Initialize Selenium WebDriver (Uses system-installed chromedriver)
+# 🔹 Initialize Selenium WebDriver
 driver = webdriver.Chrome(options=options)
 
 # 🔹 Job Sites to Scrape
@@ -37,65 +25,48 @@ job_sites = {
     "Remotive": "https://remotive.io/remote-jobs/software-dev"
 }
 
-# 🔹 Scrape Jobs
 job_listings = []
 
 for site, url in job_sites.items():
     driver.get(url)
     time.sleep(3)  # Let page load
 
-    # 🔍 Extract Job Listings
     if site == "WeWorkRemotely":
-        jobs = driver.find_elements(By.CSS_SELECTOR, "section.jobs article li a")
+        job_elements = driver.find_elements(By.CSS_SELECTOR, "section.jobs article ul li.feature a")
 
-        for job in jobs:
+        for job in job_elements:
             try:
-                job_text = job.text.split("\n")  # Split text into lines
-                title = job_text[0]  # First line is usually the job title
-                company = job_text[1] if len(job_text) > 1 else "Unknown"  # Second line should be company name
                 link = job.get_attribute("href")
-                location = "Remote"
-
-                # 🔍 **Filter Jobs Based on User Preferences**
-                if any(title.lower() in job_title for job_title in preferred_titles) or any(
-                        skill in title.lower() for skill in preferred_skills):
-                    job_listings.append({
-                        "Source": site,
-                        "Title": title,
-                        "Company": company,
-                        "Location": location,
-                        "Apply Link": link
-                    })
+                job_listings.append({
+                    "Source": site,
+                    "Title": "N/A",
+                    "Company": "N/A",
+                    "Location": "Remote",
+                    "Apply Link": link
+                })
             except Exception as e:
-                print(f"❌ Error extracting job: {e}")
+                print(f"❌ Error extracting job on WeWorkRemotely: {e}")
 
     elif site == "Remotive":
-        jobs = driver.find_elements(By.CSS_SELECTOR, "div.job-tile a")
+        job_elements = driver.find_elements(By.CSS_SELECTOR, "li.tw-cursor-pointer a")
 
-        for job in jobs:
+        for job in job_elements:
             try:
-                title = job.text.split("\n")[0]  # Extract title
                 link = job.get_attribute("href")
-                company = "Unknown"
-                location = "Remote"
-
-                # 🔍 **Filter Jobs Based on User Preferences**
-                if any(title.lower() in job_title for job_title in preferred_titles) or any(
-                        skill in title.lower() for skill in preferred_skills):
-                    job_listings.append({
-                        "Source": site,
-                        "Title": title,
-                        "Company": company,
-                        "Location": location,
-                        "Apply Link": link
-                    })
+                job_listings.append({
+                    "Source": site,
+                    "Title": "N/A",
+                    "Company": "N/A",
+                    "Location": "Remote",
+                    "Apply Link": link
+                })
             except Exception as e:
-                print(f"❌ Error extracting job: {e}")
+                print(f"❌ Error extracting job on Remotive: {e}")
 
-# 🔹 Save Filtered Jobs to CSV
+# 🔹 Save Jobs to CSV
 df = pd.DataFrame(job_listings)
 df.to_csv("job_listings.csv", index=False)
-print(f"✅ {len(job_listings)} relevant jobs saved!")
+print(f"✅ {len(job_listings)} job links saved!")
 
 # 🔹 Close Browser
 driver.quit()

@@ -1,0 +1,43 @@
+resume_template = """
+{full_name}
+{email} | {phone} | {linkedin} | {github} | {portfolio}
+
+=========================
+💼 PROFESSIONAL SUMMARY
+=========================
+{summary}
+
+=========================
+🛠 SKILLS & TECHNOLOGIES
+=========================
+{skills}
+
+=========================
+💼 WORK EXPERIENCE
+=========================
+{job_1_title} | {job_1_company} | {job_1_location} | {job_1_start} - {job_1_end}
+- {job_1_responsibility_1}
+- {job_1_responsibility_2}
+- {job_1_responsibility_3}
+
+{job_2_title} | {job_2_company} | {job_2_location} | {job_2_start} - {job_2_end}
+- {job_2_responsibility_1}
+- {job_2_responsibility_2}
+- {job_2_responsibility_3}
+
+=========================
+🎓 EDUCATION
+=========================
+{degree} | {university} | {grad_year}
+
+=========================
+🏆 CERTIFICATIONS & PROJECTS
+=========================
+{certifications}
+{projects}
+
+=========================
+📌 ADDITIONAL DETAILS
+=========================
+{extra_details}
+"""

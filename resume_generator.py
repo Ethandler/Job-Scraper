@@ -1,7 +1,7 @@
 import json
 import os
-from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 from docx import Document
 
 # 🔹 Load User Data
@@ -14,6 +14,18 @@ def load_user_data():
         user_profile = json.load(file)
 
     return user_data, user_profile
+
+# 🔹 Backup Existing Resumes
+def backup_old_resumes():
+    """Back up old resume files before generating new ones."""
+    for ext in ["pdf", "docx"]:
+        old_file = f"resume.{ext}"
+        backup_file = f"resume_backup.{ext}"
+        
+        if os.path.exists(old_file):
+            if os.path.exists(backup_file):  # Remove old backup if it exists
+                os.remove(backup_file)
+            os.rename(old_file, backup_file)  # Rename old resume
 
 # 🔹 Generate PDF Resume
 def create_pdf_resume(user_data, user_profile, output_file="resume.pdf"):
@@ -36,12 +48,10 @@ def create_pdf_resume(user_data, user_profile, output_file="resume.pdf"):
     if user_data.get("github") and user_data["github"] != "Not provided":
         c.drawString(50, height - 160, f"💻 GitHub: {user_data['github']}")
 
-    # 🔹 Section Title
+    # 🔹 Career Summary
     y_position = height - 200
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, y_position, "💼 Career Summary")
-    
-    # 🔹 Preferred Job Titles
     y_position -= 20
     c.setFont("Helvetica", 12)
     c.drawString(50, y_position, f"Preferred Roles: {user_profile['preferred_job_titles']}")
@@ -50,22 +60,25 @@ def create_pdf_resume(user_data, user_profile, output_file="resume.pdf"):
     y_position -= 30
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, y_position, "🚀 Skills")
-
     y_position -= 20
     c.setFont("Helvetica", 12)
-    skills_list = user_profile["skills"].split(", ")
-    for skill in skills_list:
+
+    for skill in user_profile["skills"].split(", "):
         c.drawString(50, y_position, f"• {skill}")
         y_position -= 15
 
-    # 🔹 Experience
-    y_position -= 20
+    # 🔹 Work Experience
+    y_position -= 30
     c.setFont("Helvetica-Bold", 14)
-    c.drawString(50, y_position, "📅 Experience")
-
+    c.drawString(50, y_position, "📜 Work Experience")
     y_position -= 20
     c.setFont("Helvetica", 12)
-    c.drawString(50, y_position, f"{user_profile['experience_years']} years of experience")
+
+    for job in user_profile["work_experience"]:
+        c.drawString(50, y_position, f"{job['title']} at {job['company']} ({job['years']} years)")
+        y_position -= 15
+        c.drawString(50, y_position, job["description"])
+        y_position -= 25
 
     # 🔹 Save PDF
     c.save()
@@ -95,9 +108,11 @@ def create_docx_resume(user_data, user_profile, output_file="resume.docx"):
     for skill in user_profile["skills"].split(", "):
         doc.add_paragraph(f"• {skill}")
 
-    # 🔹 Experience
-    doc.add_heading("📅 Experience", level=2)
-    doc.add_paragraph(f"{user_profile['experience_years']} years of experience")
+    # 🔹 Work Experience
+    doc.add_heading("📜 Work Experience", level=2)
+    for job in user_profile["work_experience"]:
+        doc.add_paragraph(f"{job['title']} at {job['company']} ({job['years']} years)")
+        doc.add_paragraph(job["description"])
 
     # 🔹 Save DOCX
     doc.save(output_file)
@@ -105,8 +120,12 @@ def create_docx_resume(user_data, user_profile, output_file="resume.docx"):
 
 # 🔹 Run Resume Generator
 if __name__ == "__main__":
-    user_data, user_profile = load_user_data()
+    print("\n🔹 Backing up old resumes...")
+    backup_old_resumes()
     
-    # Generate both PDF and DOCX resumes
+    print("\n🔹 Generating new resume...")
+    user_data, user_profile = load_user_data()
     create_pdf_resume(user_data, user_profile)
     create_docx_resume(user_data, user_profile)
+
+    print("\n✅ Resume generation complete!")

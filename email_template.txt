@@ -1,0 +1,17 @@
+email_template = """
+Subject: Application for {job_title} – {applicant_name}
+
+Dear {hiring_manager_name},
+
+I hope this email finds you well. My name is {applicant_name}, and I am reaching out to express my keen interest in the {job_title} position at {company_name}. With a strong background in {field_of_expertise}, I am confident that my skills in {key_skill_1}, {key_skill_2}, and {key_skill_3} align with the needs of your team.
+
+I have attached my resume and cover letter for your review. I would appreciate the opportunity to discuss how I can contribute to {company_name}'s success. Please let me know a convenient time for us to connect.
+
+Looking forward to hearing from you.
+
+Best regards,  
+{applicant_name}  
+{applicant_email}  
+{applicant_phone}  
+{linkedin}  
+"""
