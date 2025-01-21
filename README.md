@@ -22,3 +22,23 @@ JobScraper is an **automated job scraping tool** that:
 #### **1️⃣ Install Dependencies**
 ```sh
 pip install -r requirements.txt
+If chromedriver isn’t found, make sure it’s installed and in PATH.
+2️⃣ Set Up Your Info
+sh
+Copy
+Edit
+python user_input.py
+Fill out your details (name, email, skills, GitHub, LinkedIn, etc.)
+These will be used to match jobs & auto-apply!
+3️⃣ Run the Scraper
+sh
+Copy
+Edit
+python scraper.py
+This will collect job listings into joblistings.csv
+4️⃣ Auto-Apply to Jobs
+sh
+Copy
+Edit
+python auto_apply.py
+This will submit applications to relevant jobs 🎯
