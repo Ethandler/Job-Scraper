@@ -1,59 +1,85 @@
-import requests # type: ignore
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import pandas as pd
 
-def fetch_jobs(location=None, remote_only=True):
-    # API Endpoint
-    url = "https://arbeitnow.com/api/job-board-api"
+# 🔹 Chromium Path (Ungoogled Chromium)
+chromium_path = r"C:\Users\Ethan\AppData\Local\Chromium\Application\chrome.exe"
 
-    try:
-        # Fetch data from the API
-        response = requests.get(url)
-        response.raise_for_status()  # Ensure the request was successful
+# 🔹 Set Up Chrome Options
+options = Options()
+options.binary_location = chromium_path  # Use Chromium
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+options.add_argument("--disable-blink-features=AutomationControlled")
+options.add_argument("--disable-gpu")
 
-        # Parse the JSON response
-        data = response.json()
-        jobs = data.get("data", [])
+# 🔹 Initialize Selenium WebDriver (Uses system-installed chromedriver)
+driver = webdriver.Chrome(options=options)
 
-        # Filter jobs
-        filtered_jobs = []
-        for job in jobs:
-            job_title = job.get("title", "Unknown")
-            company_name = job.get("company_name", "Unknown")
-            job_location = job.get("location", "Unknown")
-            job_remote = job.get("remote", False)
-            job_url = job.get("url", "No URL Provided")
+# 🔹 Job Sites to Scrape
+job_sites = {
+    "WeWorkRemotely": "https://weworkremotely.com/categories/remote-programming-jobs",
+    "Remotive": "https://remotive.io/remote-jobs/software-dev"
+}
 
-            # Apply filters
-            if remote_only and not job_remote:
-                continue
-            if location and location.lower() not in job_location.lower():
-                continue
+# 🔹 Scrape Jobs
+job_listings = []
 
-            # Add the job to the filtered list
-            filtered_jobs.append({
-                "title": job_title,
-                "company_name": company_name,
-                "location": job_location,
-                "remote": job_remote,
-                "url": job_url
+for site, url in job_sites.items():
+    driver.get(url)
+    time.sleep(3)  # Let page load
+
+    # 🔍 Extract Job Listings
+    if site == "WeWorkRemotely":
+      jobs = driver.find_elements(By.CSS_SELECTOR, "section.jobs article li a")
+
+      for job in jobs:
+        try:
+            job_text = job.text.split("\n")  # Split text into lines
+            
+            title = job_text[0]  # First line is usually the job title
+            company = job_text[1] if len(job_text) > 1 else "Unknown"  # Second line should be company name
+            link = job.get_attribute("href")
+            location = "Remote"
+
+            job_listings.append({
+                "Source": site,
+                "Title": title,
+                "Company": company,
+                "Location": location,
+                "Apply Link": link
             })
+        except Exception as e:
+            print(f"❌ Error extracting job: {e}")
 
-        return filtered_jobs
+    elif site == "Remotive":
+        jobs = driver.find_elements(By.CSS_SELECTOR, "div.job-tile a")
 
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching jobs: {e}")
-        return []
-
-# Example usage
-if __name__ == "__main__":
-    # Apply optional location filter and fetch remote jobs only
-    location_filter = "United States"  # Replace with None for no location filter
-    jobs = fetch_jobs(location=location_filter, remote_only=True)
-
-    # Display the results
     for job in jobs:
-        print(f"Title: {job['title']}")
-        print(f"Company: {job['company_name']}")
-        print(f"Location: {job['location']}")
-        print(f"Remote: {job['remote']}")
-        print(f"URL: {job['url']}")
-        print("-" * 50)
+        try:
+            title = job.text.split("\n")[0]  # Extract title
+            link = job.get_attribute("href")
+            company = "Unknown"
+            location = "Remote"
+
+            job_listings.append({
+                "Source": site,
+                "Title": title,
+                "Company": company,
+                "Location": location,
+                "Apply Link": link
+            })
+        except Exception as e:
+            print(f"❌ Error extracting job: {e}")
+
+# 🔹 Save Jobs to CSV
+df = pd.DataFrame(job_listings)
+df.to_csv("job_listings.csv", index=False)
+print("✅ Job listings saved!")
+
+# 🔹 Close Browser
+driver.quit()
