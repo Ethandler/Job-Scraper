@@ -1,0 +1,21 @@
+# 🚀 Ignore all generated resumes
+resume.pdf
+resume.docx
+
+# 🚀 Ignore user data (Sensitive Information)
+user_data.json
+user_profile.json
+user_data_backup.json
+user_profile_backup.json
+
+# 🚀 Ignore job listing outputs
+job_listings.csv
+
+# 🚀 Ignore virtual environment (Common for Python projects)
+VertEnv/
+venv/
+
+# 🚀 Ignore temporary/testing files
+testing/
+__pycache__/
+*.log
