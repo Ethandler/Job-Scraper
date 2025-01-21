@@ -3,7 +3,7 @@ import os
 import re
 
 # 🔹 Enable test mode (Set to True to auto-fill answers for testing)
-test_mode = False
+test_mode = True
 
 def test_input(prompt, default):
     """Returns a default value if test_mode is enabled, otherwise asks for input."""
